@@ -21,6 +21,45 @@
 
 <body class="bg-dark">
 
+<?php
+session_start();
+if ($_SERVER['REQUEST_METHOD']=='POST') {
+
+    $user = $_POST['username'];
+    $password = $_POST['password'];
+
+    require_once 'connect.php';
+
+    $sql = "SELECT * FROM User_admin WHERE username='$user' ";
+
+    $response = mysqli_query($conn, $sql);
+
+    $result = array();
+    $result['login'] = array();
+
+     if ( mysqli_num_rows($response) === 1 ) {
+        
+        $row = mysqli_fetch_assoc($response);
+        if ( password_verify($password, $row['password']) ) {
+            $index['user'] = $row['username'];
+            $index['name'] = $row['name'];
+
+            array_push($result['login'], $index);
+
+            $result['success'] = "1";
+            $result['message'] = "success";
+            $_SESSION['user'] = $row['username'];
+            $_SESSION['name'] = $row['name'];
+            header('location:student.php');
+            mysqli_close($conn);
+        } else {
+            $result['success'] = "0";
+            $result['message'] = "error";
+            echo "Not Fail";
+        mysqli_close($conn);
+        }}}
+?>
+
   <div class="container">
     <div class="card card-login mx-auto mt-5">
       <div class="card-header">
@@ -29,7 +68,7 @@
       </center>
       </div>
       <div class="card-body">
-        <form>
+        <form action="" method="POST">
           <div class="form-group">
             <div class="form-label-group">
               <input type="text" id="username" class="form-control" placeholder="Username" required="required" autofocus="autofocus"
